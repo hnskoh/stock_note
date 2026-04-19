@@ -23,7 +23,7 @@ class DriveRepository {
   // ------------------------------------------------------------------ //
 
   /// Check-out: Drive에서 DB를 가져와 로컬에 적용
-  Future<SyncState> checkOut() async {
+  Future<SyncState> checkOut({Future<void> Function()? onBeforeDbWrite}) async {
     final api = await _getDriveApi();
 
     // 1. Lock 파일 확인
@@ -59,6 +59,7 @@ class DriveRepository {
         (localSyncedAt == null ||
             driveModifiedTime.isAfter(localSyncedAt))) {
       // Drive가 최신 → 다운로드
+      await onBeforeDbWrite?.call();
       await _downloadDb(api, dbFile.id!);
     }
 
@@ -209,20 +210,11 @@ class DriveRepository {
     return io.File(path).readAsBytes();
   }
 
-  // Web 전용 구현 (sqflite_common_ffi_web)
   Future<void> _writeWebDb(Uint8List bytes) async {
-    // sqflite_common_ffi_web은 IndexedDB를 사용하므로
-    // 현재 DB를 닫고 bytes로 교체해야 함
-    // 이 구현은 sqflite_common_ffi_web API 버전에 따라 달라질 수 있음
-    final factory = databaseFactoryFfi;
-    await factory.deleteDatabase(AppConstants.dbFileName);
-    // 임시 파일에 쓴 후 다시 오픈 (Web에서는 in-memory 방식)
-    // 실제 구현은 패키지 문서 참고
+    await databaseFactory.writeDatabaseBytes(AppConstants.dbFileName, bytes);
   }
 
   Future<Uint8List> _readWebDb() async {
-    // Web에서는 IndexedDB export API를 사용
-    // 현재는 빈 바이트 반환 (Web sync는 Phase 2에서 완성)
-    return Uint8List(0);
+    return databaseFactory.readDatabaseBytes(AppConstants.dbFileName);
   }
 }
