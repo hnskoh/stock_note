@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'account_type_model.freezed.dart';
@@ -5,7 +6,7 @@ part 'account_type_model.freezed.dart';
 @freezed
 class AccountType with _$AccountType {
   const factory AccountType({
-    int? id,
+    String? id,
     required String typeCode,
     required String typeLabel,
     required bool isSystem,
@@ -14,19 +15,23 @@ class AccountType with _$AccountType {
 
   const AccountType._();
 
-  factory AccountType.fromMap(Map<String, dynamic> m) => AccountType(
-        id: m['id'] as int?,
-        typeCode: m['type_code'] as String,
-        typeLabel: m['type_label'] as String,
-        isSystem: (m['is_system'] as int) == 1,
-        createdAt: DateTime.parse(m['created_at'] as String),
-      );
+  factory AccountType.fromFirestore(DocumentSnapshot doc) {
+    final m = doc.data() as Map<String, dynamic>;
+    return AccountType(
+      id: doc.id,
+      typeCode: m['typeCode'] as String,
+      typeLabel: m['typeLabel'] as String,
+      isSystem: m['isSystem'] as bool? ?? false,
+      createdAt: (m['createdAt'] as Timestamp).toDate(),
+    );
+  }
 
-  Map<String, dynamic> toMap() => {
-        if (id != null) 'id': id,
-        'type_code': typeCode,
-        'type_label': typeLabel,
-        'is_system': isSystem ? 1 : 0,
-        'created_at': createdAt.toUtc().toIso8601String(),
+  Map<String, dynamic> toFirestore() => {
+        'typeCode': typeCode,
+        'typeLabel': typeLabel,
+        'isSystem': isSystem,
+        'createdAt': id == null
+            ? Timestamp.now()
+            : Timestamp.fromDate(createdAt.toUtc()),
       };
 }

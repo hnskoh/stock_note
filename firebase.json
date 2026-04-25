@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"stack-note-app","appId":"1:587400383504:android:b99f4706b2b4f1519e8e95","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"stack-note-app","configurations":{"android":"1:587400383504:android:b99f4706b2b4f1519e8e95","web":"1:587400383504:web:67f265e1f06b57da9e8e95"}}}}}}

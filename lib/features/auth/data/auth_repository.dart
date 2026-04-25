@@ -1,67 +1,57 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
-import 'package:googleapis_auth/googleapis_auth.dart';
 
-import '../../../core/constants/app_constants.dart';
 import '../../../core/error/app_exception.dart';
 import '../domain/user_model.dart';
 
 class AuthRepository {
   AuthRepository()
-      : _googleSignIn = GoogleSignIn(
-          scopes: AppConstants.driveScopes,
-          clientId: kIsWeb
-              ? '587400383504-7old5oilvoj9cq8qlp512nbs6glem49o.apps.googleusercontent.com'
-              : null,
-        );
+      : _auth = FirebaseAuth.instance,
+        _googleSignIn = GoogleSignIn();
 
+  final FirebaseAuth _auth;
   final GoogleSignIn _googleSignIn;
 
-  Stream<AppUser?> get authStateChanges =>
-      _googleSignIn.onCurrentUserChanged.map(
-        (account) => account == null ? null : _mapToUser(account),
+  Stream<AppUser?> get authStateChanges => _auth.authStateChanges().map(
+        (user) => user == null ? null : _mapToUser(user),
       );
 
-  GoogleSignInAccount? get currentAccount => _googleSignIn.currentUser;
-
   Future<AppUser?> signInSilently() async {
-    try {
-      final account = await _googleSignIn.signInSilently();
-      return account == null ? null : _mapToUser(account);
-    } catch (_) {
-      return null;
-    }
+    final user = _auth.currentUser;
+    return user == null ? null : _mapToUser(user);
   }
 
   Future<AppUser?> signIn() async {
     try {
-      final existing = await _googleSignIn.signInSilently();
-      if (existing != null) return _mapToUser(existing);
-
-      final account = await _googleSignIn.signIn();
-      return account == null ? null : _mapToUser(account);
+      if (kIsWeb) {
+        final result = await _auth.signInWithPopup(GoogleAuthProvider());
+        return result.user == null ? null : _mapToUser(result.user!);
+      } else {
+        final googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) return null;
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        final result = await _auth.signInWithCredential(credential);
+        return result.user == null ? null : _mapToUser(result.user!);
+      }
     } catch (e) {
       throw AuthException('Google 로그인 실패: $e');
     }
   }
 
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
+    await _auth.signOut();
+    if (!kIsWeb) await _googleSignIn.signOut();
   }
 
-  Future<AuthClient?> getAuthClient() async {
-    try {
-      return await _googleSignIn.authenticatedClient();
-    } catch (e) {
-      throw AuthException('인증 클라이언트 생성 실패: $e');
-    }
-  }
-
-  AppUser _mapToUser(GoogleSignInAccount account) => AppUser(
-        id: account.id,
-        email: account.email,
-        displayName: account.displayName,
-        photoUrl: account.photoUrl,
+  AppUser _mapToUser(User user) => AppUser(
+        id: user.uid,
+        email: user.email ?? '',
+        displayName: user.displayName,
+        photoUrl: user.photoURL,
       );
 }

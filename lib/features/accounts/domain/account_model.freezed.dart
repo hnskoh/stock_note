@@ -16,14 +16,13 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$Account {
-  int? get id => throw _privateConstructorUsedError;
+  String? get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get type => throw _privateConstructorUsedError;
   bool get isActive => throw _privateConstructorUsedError;
   int get sortOrder => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt =>
-      throw _privateConstructorUsedError; // 조인용 (query에서 채워짐)
+  DateTime get updatedAt => throw _privateConstructorUsedError;
   String? get typeLabel => throw _privateConstructorUsedError;
 
   /// Create a copy of Account
@@ -38,7 +37,7 @@ abstract class $AccountCopyWith<$Res> {
       _$AccountCopyWithImpl<$Res, Account>;
   @useResult
   $Res call(
-      {int? id,
+      {String? id,
       String name,
       String type,
       bool isActive,
@@ -76,7 +75,7 @@ class _$AccountCopyWithImpl<$Res, $Val extends Account>
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -117,7 +116,7 @@ abstract class _$$AccountImplCopyWith<$Res> implements $AccountCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {int? id,
+      {String? id,
       String name,
       String type,
       bool isActive,
@@ -153,7 +152,7 @@ class __$$AccountImplCopyWithImpl<$Res>
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -201,7 +200,7 @@ class _$AccountImpl extends _Account {
       : super._();
 
   @override
-  final int? id;
+  final String? id;
   @override
   final String name;
   @override
@@ -214,7 +213,6 @@ class _$AccountImpl extends _Account {
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
-// 조인용 (query에서 채워짐)
   @override
   final String? typeLabel;
 
@@ -258,7 +256,7 @@ class _$AccountImpl extends _Account {
 
 abstract class _Account extends Account {
   const factory _Account(
-      {final int? id,
+      {final String? id,
       required final String name,
       required final String type,
       required final bool isActive,
@@ -269,7 +267,7 @@ abstract class _Account extends Account {
   const _Account._() : super._();
 
   @override
-  int? get id;
+  String? get id;
   @override
   String get name;
   @override
@@ -281,7 +279,7 @@ abstract class _Account extends Account {
   @override
   DateTime get createdAt;
   @override
-  DateTime get updatedAt; // 조인용 (query에서 채워짐)
+  DateTime get updatedAt;
   @override
   String? get typeLabel;
 

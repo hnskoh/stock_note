@@ -21,9 +21,6 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Setup sqflite web
-        run: dart run sqflite_common_ffi_web:setup
-
       - name: Build web
         run: flutter build web --base-href /stock_note/
 

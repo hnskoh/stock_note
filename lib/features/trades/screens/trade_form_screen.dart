@@ -16,7 +16,7 @@ import '../providers/trade_provider.dart';
 
 class TradeFormScreen extends ConsumerStatefulWidget {
   const TradeFormScreen({this.tradeId, super.key});
-  final int? tradeId;
+  final String? tradeId;
 
   @override
   ConsumerState<TradeFormScreen> createState() => _TradeFormScreenState();
@@ -60,8 +60,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
         _priceController.text = trade.price.toStringAsFixed(0);
         _feeController.text = trade.fee.toStringAsFixed(0);
         _noteController.text = trade.note ?? '';
-
-        // 계좌 로드는 accountListProvider가 준비되면 처리
         setState(() {});
       }
     } finally {
@@ -103,7 +101,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
               const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('오류: $e')),
           data: (accounts) {
-            // 수정 모드에서 계좌 매칭
             if (_isEditMode && _selectedAccount == null && _originalTrade != null) {
               _selectedAccount = accounts.firstWhere(
                 (a) => a.id == _originalTrade!.accountId,
@@ -118,7 +115,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  // 계좌 선택
                   DropdownButtonFormField<Account>(
                     value: _selectedAccount,
                     decoration: const InputDecoration(labelText: '계좌 *'),
@@ -133,8 +129,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
                     validator: (v) => v == null ? '계좌를 선택하세요.' : null,
                   ),
                   const SizedBox(height: 12),
-
-                  // 매매일
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.calendar_today),
@@ -154,8 +148,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
                   ),
                   const Divider(),
                   const SizedBox(height: 8),
-
-                  // 종목명 (자동완성)
                   tickersAsync.when(
                     loading: () => TextFormField(
                       controller: _tickerController,
@@ -168,8 +160,8 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
                       decoration: const InputDecoration(labelText: '종목명 *'),
                     ),
                     data: (tickers) => Autocomplete<String>(
-                      initialValue: TextEditingValue(
-                          text: _tickerController.text),
+                      initialValue:
+                          TextEditingValue(text: _tickerController.text),
                       optionsBuilder: (value) {
                         if (value.text.isEmpty) return tickers;
                         return tickers.where((t) => t
@@ -193,8 +185,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  // 매수/매도 구분
                   SegmentedButton<TradeAction>(
                     segments: [
                       ButtonSegment(
@@ -213,8 +203,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
                         setState(() => _action = s.first),
                   ),
                   const SizedBox(height: 12),
-
-                  // 수량
                   TextFormField(
                     controller: _quantityController,
                     decoration: const InputDecoration(
@@ -235,8 +223,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 12),
-
-                  // 단가
                   TextFormField(
                     controller: _priceController,
                     decoration: const InputDecoration(
@@ -255,8 +241,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 12),
-
-                  // 수수료
                   TextFormField(
                     controller: _feeController,
                     decoration: const InputDecoration(
@@ -268,17 +252,16 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 12),
-
-                  // 총 금액 (자동계산)
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('총 금액'),
                         Text(
@@ -292,8 +275,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  // 메모
                   TextFormField(
                     controller: _noteController,
                     decoration: const InputDecoration(
@@ -304,7 +285,6 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
                     maxLength: AppConstants.memoMaxLength,
                   ),
                   const SizedBox(height: 24),
-
                   FilledButton(
                     onPressed: _isLoading ? null : _submit,
                     child: Text(_isEditMode ? '수정 완료' : '저장'),
@@ -324,16 +304,15 @@ class _TradeFormScreenState extends ConsumerState<TradeFormScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final qty =
-          double.parse(_quantityController.text);
-      final price =
-          double.parse(_priceController.text);
+      final qty = double.parse(_quantityController.text);
+      final price = double.parse(_priceController.text);
       final fee = double.tryParse(_feeController.text) ?? 0;
       final now = DateTime.now();
 
       final trade = TradeModel(
         id: _originalTrade?.id,
         accountId: _selectedAccount!.id!,
+        accountName: _selectedAccount!.name,
         tradeDate: _tradeDate,
         tickerName: _tickerController.text.trim(),
         action: _action,

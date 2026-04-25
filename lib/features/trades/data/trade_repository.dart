@@ -1,73 +1,75 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
-import '../../../core/database/database_provider.dart';
 import '../../../core/error/app_exception.dart';
+import '../../../core/firebase/firebase_provider.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../domain/trade_filter.dart';
 import '../domain/trade_model.dart';
 
-final tradeRepositoryProvider = Provider<TradeRepository>(
-  (ref) => TradeRepository(ref),
-);
+final tradeRepositoryProvider = Provider<TradeRepository>((ref) {
+  final firestore = ref.watch(firestoreProvider);
+  final userId = ref.watch(authStateProvider).valueOrNull?.id ?? '';
+  return TradeRepository(firestore: firestore, userId: userId);
+});
 
 class TradeRepository {
-  TradeRepository(this._ref);
-  final Ref _ref;
+  TradeRepository({required this.firestore, required this.userId});
 
-  static final _dbFmt = DateFormat('yyyy-MM-dd');
+  final FirebaseFirestore firestore;
+  final String userId;
+
+  CollectionReference<Map<String, dynamic>> get _col =>
+      firestore.collection('users').doc(userId).collection('trades');
 
   Future<List<TradeModel>> getFilteredTrades(TradeFilter filter) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      final whereClauses = <String>[];
-      final args = <dynamic>[];
+      Query<Map<String, dynamic>> query =
+          _col.orderBy('tradeDate', descending: true);
 
       if (filter.startDate != null) {
-        whereClauses.add('t.trade_date >= ?');
-        args.add(_dbFmt.format(filter.startDate!));
+        query = query.where('tradeDate',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime.utc(
+              filter.startDate!.year,
+              filter.startDate!.month,
+              filter.startDate!.day,
+            )));
       }
       if (filter.endDate != null) {
-        whereClauses.add('t.trade_date <= ?');
-        args.add(_dbFmt.format(filter.endDate!));
+        query = query.where('tradeDate',
+            isLessThanOrEqualTo: Timestamp.fromDate(DateTime.utc(
+              filter.endDate!.year,
+              filter.endDate!.month,
+              filter.endDate!.day,
+              23,
+              59,
+              59,
+            )));
       }
       if (filter.accountId != null) {
-        whereClauses.add('t.account_id = ?');
-        args.add(filter.accountId!);
+        query = query.where('accountId', isEqualTo: filter.accountId);
       }
+
+      final snapshot = await query.get();
+      var trades = snapshot.docs.map(TradeModel.fromFirestore).toList();
+
       if (filter.tickerQuery?.isNotEmpty == true) {
-        whereClauses.add('t.ticker_name LIKE ?');
-        args.add('%${filter.tickerQuery}%');
+        final q = filter.tickerQuery!.toLowerCase();
+        trades =
+            trades.where((t) => t.tickerName.toLowerCase().contains(q)).toList();
       }
 
-      final where = whereClauses.isEmpty
-          ? ''
-          : 'WHERE ${whereClauses.join(' AND ')}';
-
-      final rows = await db.rawQuery('''
-        SELECT t.*, a.name AS account_name
-        FROM trade_logs t
-        LEFT JOIN accounts a ON t.account_id = a.id
-        $where
-        ORDER BY t.trade_date DESC, t.created_at DESC
-      ''', args.isEmpty ? null : args);
-
-      return rows.map(TradeModel.fromMap).toList();
+      return trades;
     } catch (e) {
       throw DatabaseException('매매 기록 조회 실패: $e');
     }
   }
 
-  Future<TradeModel?> getById(int id) async {
+  Future<TradeModel?> getById(String id) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      final rows = await db.rawQuery('''
-        SELECT t.*, a.name AS account_name
-        FROM trade_logs t
-        LEFT JOIN accounts a ON t.account_id = a.id
-        WHERE t.id = ?
-      ''', [id]);
-      if (rows.isEmpty) return null;
-      return TradeModel.fromMap(rows.first);
+      final doc = await _col.doc(id).get();
+      if (!doc.exists) return null;
+      return TradeModel.fromFirestore(doc);
     } catch (e) {
       throw DatabaseException('매매 기록 조회 실패: $e');
     }
@@ -75,9 +77,8 @@ class TradeRepository {
 
   Future<TradeModel> insert(TradeModel trade) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      final id = await db.insert('trade_logs', trade.toMap());
-      return trade.copyWith(id: id);
+      final doc = await _col.add(trade.toFirestore());
+      return trade.copyWith(id: doc.id);
     } catch (e) {
       throw DatabaseException('매매 기록 추가 실패: $e');
     }
@@ -85,18 +86,15 @@ class TradeRepository {
 
   Future<void> update(TradeModel trade) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      await db.update('trade_logs', trade.toMap(),
-          where: 'id = ?', whereArgs: [trade.id]);
+      await _col.doc(trade.id).update(trade.toFirestore());
     } catch (e) {
       throw DatabaseException('매매 기록 수정 실패: $e');
     }
   }
 
-  Future<void> delete(int id) async {
+  Future<void> delete(String id) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      await db.delete('trade_logs', where: 'id = ?', whereArgs: [id]);
+      await _col.doc(id).delete();
     } catch (e) {
       throw DatabaseException('매매 기록 삭제 실패: $e');
     }
@@ -104,11 +102,13 @@ class TradeRepository {
 
   Future<List<String>> getDistinctTickers() async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      final rows = await db.rawQuery(
-        'SELECT DISTINCT ticker_name FROM trade_logs ORDER BY ticker_name ASC',
-      );
-      return rows.map((r) => r['ticker_name'] as String).toList();
+      final snapshot = await _col.get();
+      final tickers = snapshot.docs
+          .map((d) => d.data()['tickerName'] as String)
+          .toSet()
+          .toList()
+        ..sort();
+      return tickers;
     } catch (e) {
       throw DatabaseException('종목 목록 조회 실패: $e');
     }
@@ -117,20 +117,15 @@ class TradeRepository {
   Future<Map<String, double>> getSummary(
       DateTime startDate, DateTime endDate) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      final rows = await db.rawQuery('''
-        SELECT action, SUM(total_amount) as total
-        FROM trade_logs
-        WHERE trade_date >= ? AND trade_date <= ?
-        GROUP BY action
-      ''', [_dbFmt.format(startDate), _dbFmt.format(endDate)]);
-
+      final trades = await getFilteredTrades(
+        TradeFilter(startDate: startDate, endDate: endDate),
+      );
       double buy = 0, sell = 0;
-      for (final row in rows) {
-        if (row['action'] == 'BUY') {
-          buy = (row['total'] as num).toDouble();
+      for (final t in trades) {
+        if (t.action.code == 'BUY') {
+          buy += t.totalAmount;
         } else {
-          sell = (row['total'] as num).toDouble();
+          sell += t.totalAmount;
         }
       }
       return {'buy': buy, 'sell': sell};

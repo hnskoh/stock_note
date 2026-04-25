@@ -7,7 +7,7 @@ class TradeFilter with _$TradeFilter {
   const factory TradeFilter({
     DateTime? startDate,
     DateTime? endDate,
-    int? accountId,
+    String? accountId,
     String? tickerQuery,
   }) = _TradeFilter;
 

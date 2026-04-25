@@ -1,44 +1,52 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/database/database_provider.dart';
 import '../../../core/error/app_exception.dart';
+import '../../../core/firebase/firebase_provider.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../domain/account_model.dart';
 
-final accountRepositoryProvider = Provider<AccountRepository>(
-  (ref) => AccountRepository(ref),
-);
+final accountRepositoryProvider = Provider<AccountRepository>((ref) {
+  final firestore = ref.watch(firestoreProvider);
+  final userId = ref.watch(authStateProvider).valueOrNull?.id ?? '';
+  return AccountRepository(firestore: firestore, userId: userId);
+});
 
 class AccountRepository {
-  AccountRepository(this._ref);
-  final Ref _ref;
+  AccountRepository({required this.firestore, required this.userId});
+
+  final FirebaseFirestore firestore;
+  final String userId;
+
+  CollectionReference<Map<String, dynamic>> get _col =>
+      firestore.collection('users').doc(userId).collection('accounts');
+
+  CollectionReference<Map<String, dynamic>> get _tradesCol =>
+      firestore.collection('users').doc(userId).collection('trades');
 
   Future<List<Account>> getAll({bool activeOnly = true}) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      final rows = await db.rawQuery('''
-        SELECT a.*, at.type_label
-        FROM accounts a
-        LEFT JOIN account_types at ON a.type = at.type_code
-        ${activeOnly ? 'WHERE a.is_active = 1' : ''}
-        ORDER BY a.sort_order ASC, a.created_at DESC
-      ''');
-      return rows.map(Account.fromMap).toList();
+      final snapshot = await _col.get();
+      var accounts = snapshot.docs.map(Account.fromFirestore).toList();
+      if (activeOnly) {
+        accounts = accounts.where((a) => a.isActive).toList();
+      }
+      accounts.sort((a, b) {
+        final order = a.sortOrder.compareTo(b.sortOrder);
+        if (order != 0) return order;
+        return b.createdAt.compareTo(a.createdAt);
+      });
+      return accounts;
     } catch (e) {
       throw DatabaseException('계좌 조회 실패: $e');
     }
   }
 
-  Future<Account?> getById(int id) async {
+  Future<Account?> getById(String id) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      final rows = await db.rawQuery('''
-        SELECT a.*, at.type_label
-        FROM accounts a
-        LEFT JOIN account_types at ON a.type = at.type_code
-        WHERE a.id = ?
-      ''', [id]);
-      if (rows.isEmpty) return null;
-      return Account.fromMap(rows.first);
+      final doc = await _col.doc(id).get();
+      if (!doc.exists) return null;
+      return Account.fromFirestore(doc);
     } catch (e) {
       throw DatabaseException('계좌 조회 실패: $e');
     }
@@ -46,9 +54,8 @@ class AccountRepository {
 
   Future<Account> insert(Account account) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      final id = await db.insert('accounts', account.toMap());
-      return account.copyWith(id: id);
+      final doc = await _col.add(account.toFirestore());
+      return account.copyWith(id: doc.id);
     } catch (e) {
       throw DatabaseException('계좌 추가 실패: $e');
     }
@@ -56,47 +63,34 @@ class AccountRepository {
 
   Future<void> update(Account account) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      await db.update('accounts', account.toMap(),
-          where: 'id = ?', whereArgs: [account.id]);
+      await _col.doc(account.id).update(account.toFirestore());
     } catch (e) {
       throw DatabaseException('계좌 수정 실패: $e');
     }
   }
 
-  Future<void> deleteOrDeactivate(int id) async {
+  Future<void> deleteOrDeactivate(String id) async {
     try {
-      final db = await _ref.read(databaseProvider.future);
-      final trades = await db.query(
-        'trade_logs',
-        where: 'account_id = ?',
-        whereArgs: [id],
-        limit: 1,
-      );
-      if (trades.isNotEmpty) {
-        await db.update(
-          'accounts',
-          {
-            'is_active': 0,
-            'updated_at': DateTime.now().toUtc().toIso8601String()
-          },
-          where: 'id = ?',
-          whereArgs: [id],
-        );
+      final tradesSnap = await _tradesCol
+          .where('accountId', isEqualTo: id)
+          .limit(1)
+          .get();
+      if (tradesSnap.docs.isNotEmpty) {
+        await _col.doc(id).update({
+          'isActive': false,
+          'updatedAt': Timestamp.now(),
+        });
       } else {
-        await db.delete('accounts', where: 'id = ?', whereArgs: [id]);
+        await _col.doc(id).delete();
       }
     } catch (e) {
       throw DatabaseException('계좌 삭제 실패: $e');
     }
   }
 
-  Future<int> getTradeCount(int accountId) async {
-    final db = await _ref.read(databaseProvider.future);
-    final result = await db.rawQuery(
-      'SELECT COUNT(*) as cnt FROM trade_logs WHERE account_id = ?',
-      [accountId],
-    );
-    return result.first['cnt'] as int;
+  Future<int> getTradeCount(String accountId) async {
+    final snap =
+        await _tradesCol.where('accountId', isEqualTo: accountId).count().get();
+    return snap.count ?? 0;
   }
 }

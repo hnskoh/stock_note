@@ -10,7 +10,7 @@ import '../providers/account_provider.dart';
 
 class AccountFormScreen extends ConsumerStatefulWidget {
   const AccountFormScreen({this.accountId, super.key});
-  final int? accountId;
+  final String? accountId;
 
   @override
   ConsumerState<AccountFormScreen> createState() =>
@@ -105,8 +105,7 @@ class _AccountFormScreenState extends ConsumerState<AccountFormScreen> {
                               child: Text(t.typeLabel),
                             ))
                         .toList(),
-                    onChanged: (v) =>
-                        setState(() => _selectedType = v),
+                    onChanged: (v) => setState(() => _selectedType = v),
                     validator: (v) =>
                         v == null ? '계좌 유형을 선택하세요.' : null,
                   ),
@@ -134,6 +133,7 @@ class _AccountFormScreenState extends ConsumerState<AccountFormScreen> {
         id: _originalAccount?.id,
         name: _nameController.text.trim(),
         type: _selectedType!.typeCode,
+        typeLabel: _selectedType!.typeLabel,
         isActive: true,
         sortOrder: _originalAccount?.sortOrder ?? 0,
         createdAt: _originalAccount?.createdAt ?? now,

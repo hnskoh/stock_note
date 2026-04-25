@@ -11,15 +11,14 @@ import '../data/trade_repository.dart';
 import '../domain/trade_model.dart';
 import '../providers/trade_provider.dart';
 
-// 단일 거래 로드용 provider
 final _tradeByIdProvider =
-    FutureProvider.family<TradeModel?, int>((ref, id) {
+    FutureProvider.family<TradeModel?, String>((ref, id) {
   return ref.watch(tradeRepositoryProvider).getById(id);
 });
 
 class TradeDetailScreen extends ConsumerWidget {
   const TradeDetailScreen({required this.tradeId, super.key});
-  final int tradeId;
+  final String tradeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,7 +57,6 @@ class TradeDetailScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // 헤더 카드
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -105,7 +103,6 @@ class TradeDetailScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // 상세 정보
               Card(
                 child: Column(
                   children: [
@@ -166,7 +163,7 @@ class TradeDetailScreen extends ConsumerWidget {
   }
 
   Future<void> _delete(
-      BuildContext context, WidgetRef ref, int id) async {
+      BuildContext context, WidgetRef ref, String id) async {
     final confirmed = await showConfirmDialog(
       context,
       title: '매매 기록 삭제',

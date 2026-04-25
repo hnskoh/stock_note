@@ -5,11 +5,8 @@ import '../domain/user_model.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>(
   (_) => AuthRepository(),
-  // keepAlive by default for Provider
 );
 
 final authStateProvider = StreamProvider<AppUser?>((ref) {
-  final repo = ref.watch(authRepositoryProvider);
-  repo.signInSilently().ignore();
-  return repo.authStateChanges;
+  return ref.watch(authRepositoryProvider).authStateChanges;
 });

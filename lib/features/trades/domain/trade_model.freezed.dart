@@ -16,8 +16,8 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$TradeModel {
-  int? get id => throw _privateConstructorUsedError;
-  int get accountId => throw _privateConstructorUsedError;
+  String? get id => throw _privateConstructorUsedError;
+  String get accountId => throw _privateConstructorUsedError;
   DateTime get tradeDate => throw _privateConstructorUsedError;
   String get tickerName => throw _privateConstructorUsedError;
   TradeAction get action => throw _privateConstructorUsedError;
@@ -27,7 +27,7 @@ mixin _$TradeModel {
   double get totalAmount => throw _privateConstructorUsedError;
   String? get note => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError; // 조인용
+  DateTime get updatedAt => throw _privateConstructorUsedError;
   String? get accountName => throw _privateConstructorUsedError;
 
   /// Create a copy of TradeModel
@@ -44,8 +44,8 @@ abstract class $TradeModelCopyWith<$Res> {
       _$TradeModelCopyWithImpl<$Res, TradeModel>;
   @useResult
   $Res call(
-      {int? id,
-      int accountId,
+      {String? id,
+      String accountId,
       DateTime tradeDate,
       String tickerName,
       TradeAction action,
@@ -92,11 +92,11 @@ class _$TradeModelCopyWithImpl<$Res, $Val extends TradeModel>
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       accountId: null == accountId
           ? _value.accountId
           : accountId // ignore: cast_nullable_to_non_nullable
-              as int,
+              as String,
       tradeDate: null == tradeDate
           ? _value.tradeDate
           : tradeDate // ignore: cast_nullable_to_non_nullable
@@ -154,8 +154,8 @@ abstract class _$$TradeModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int? id,
-      int accountId,
+      {String? id,
+      String accountId,
       DateTime tradeDate,
       String tickerName,
       TradeAction action,
@@ -200,11 +200,11 @@ class __$$TradeModelImplCopyWithImpl<$Res>
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       accountId: null == accountId
           ? _value.accountId
           : accountId // ignore: cast_nullable_to_non_nullable
-              as int,
+              as String,
       tradeDate: null == tradeDate
           ? _value.tradeDate
           : tradeDate // ignore: cast_nullable_to_non_nullable
@@ -273,9 +273,9 @@ class _$TradeModelImpl extends _TradeModel {
       : super._();
 
   @override
-  final int? id;
+  final String? id;
   @override
-  final int accountId;
+  final String accountId;
   @override
   final DateTime tradeDate;
   @override
@@ -297,7 +297,6 @@ class _$TradeModelImpl extends _TradeModel {
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
-// 조인용
   @override
   final String? accountName;
 
@@ -362,8 +361,8 @@ class _$TradeModelImpl extends _TradeModel {
 
 abstract class _TradeModel extends TradeModel {
   const factory _TradeModel(
-      {final int? id,
-      required final int accountId,
+      {final String? id,
+      required final String accountId,
       required final DateTime tradeDate,
       required final String tickerName,
       required final TradeAction action,
@@ -378,9 +377,9 @@ abstract class _TradeModel extends TradeModel {
   const _TradeModel._() : super._();
 
   @override
-  int? get id;
+  String? get id;
   @override
-  int get accountId;
+  String get accountId;
   @override
   DateTime get tradeDate;
   @override
@@ -400,7 +399,7 @@ abstract class _TradeModel extends TradeModel {
   @override
   DateTime get createdAt;
   @override
-  DateTime get updatedAt; // 조인용
+  DateTime get updatedAt;
   @override
   String? get accountName;
 

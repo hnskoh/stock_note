@@ -18,7 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$TradeFilter {
   DateTime? get startDate => throw _privateConstructorUsedError;
   DateTime? get endDate => throw _privateConstructorUsedError;
-  int? get accountId => throw _privateConstructorUsedError;
+  String? get accountId => throw _privateConstructorUsedError;
   String? get tickerQuery => throw _privateConstructorUsedError;
 
   /// Create a copy of TradeFilter
@@ -37,7 +37,7 @@ abstract class $TradeFilterCopyWith<$Res> {
   $Res call(
       {DateTime? startDate,
       DateTime? endDate,
-      int? accountId,
+      String? accountId,
       String? tickerQuery});
 }
 
@@ -73,7 +73,7 @@ class _$TradeFilterCopyWithImpl<$Res, $Val extends TradeFilter>
       accountId: freezed == accountId
           ? _value.accountId
           : accountId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       tickerQuery: freezed == tickerQuery
           ? _value.tickerQuery
           : tickerQuery // ignore: cast_nullable_to_non_nullable
@@ -93,7 +93,7 @@ abstract class _$$TradeFilterImplCopyWith<$Res>
   $Res call(
       {DateTime? startDate,
       DateTime? endDate,
-      int? accountId,
+      String? accountId,
       String? tickerQuery});
 }
 
@@ -127,7 +127,7 @@ class __$$TradeFilterImplCopyWithImpl<$Res>
       accountId: freezed == accountId
           ? _value.accountId
           : accountId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       tickerQuery: freezed == tickerQuery
           ? _value.tickerQuery
           : tickerQuery // ignore: cast_nullable_to_non_nullable
@@ -148,7 +148,7 @@ class _$TradeFilterImpl extends _TradeFilter {
   @override
   final DateTime? endDate;
   @override
-  final int? accountId;
+  final String? accountId;
   @override
   final String? tickerQuery;
 
@@ -188,7 +188,7 @@ abstract class _TradeFilter extends TradeFilter {
   const factory _TradeFilter(
       {final DateTime? startDate,
       final DateTime? endDate,
-      final int? accountId,
+      final String? accountId,
       final String? tickerQuery}) = _$TradeFilterImpl;
   const _TradeFilter._() : super._();
 
@@ -197,7 +197,7 @@ abstract class _TradeFilter extends TradeFilter {
   @override
   DateTime? get endDate;
   @override
-  int? get accountId;
+  String? get accountId;
   @override
   String? get tickerQuery;
 

@@ -48,15 +48,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: ':id',
                 builder: (_, state) => TradeDetailScreen(
-                  tradeId: int.parse(state.pathParameters['id']!),
+                  tradeId: state.pathParameters['id']!,
                 ),
                 routes: [
                   GoRoute(
                     path: 'edit',
                     builder: (_, state) {
-                      // ':id'는 상위 경로에서 왔음
                       final segments = state.matchedLocation.split('/');
-                      final id = int.tryParse(segments[segments.length - 2]);
+                      final id = segments[segments.length - 2];
                       return TradeFormScreen(tradeId: id);
                     },
                   ),
@@ -79,8 +78,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: ':id/edit',
                     builder: (_, state) => AccountFormScreen(
-                      accountId:
-                          int.tryParse(state.pathParameters['id'] ?? ''),
+                      accountId: state.pathParameters['id'],
                     ),
                   ),
                 ],

@@ -16,7 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$AccountType {
-  int? get id => throw _privateConstructorUsedError;
+  String? get id => throw _privateConstructorUsedError;
   String get typeCode => throw _privateConstructorUsedError;
   String get typeLabel => throw _privateConstructorUsedError;
   bool get isSystem => throw _privateConstructorUsedError;
@@ -36,7 +36,7 @@ abstract class $AccountTypeCopyWith<$Res> {
       _$AccountTypeCopyWithImpl<$Res, AccountType>;
   @useResult
   $Res call(
-      {int? id,
+      {String? id,
       String typeCode,
       String typeLabel,
       bool isSystem,
@@ -68,7 +68,7 @@ class _$AccountTypeCopyWithImpl<$Res, $Val extends AccountType>
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       typeCode: null == typeCode
           ? _value.typeCode
           : typeCode // ignore: cast_nullable_to_non_nullable
@@ -98,7 +98,7 @@ abstract class _$$AccountTypeImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int? id,
+      {String? id,
       String typeCode,
       String typeLabel,
       bool isSystem,
@@ -128,7 +128,7 @@ class __$$AccountTypeImplCopyWithImpl<$Res>
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       typeCode: null == typeCode
           ? _value.typeCode
           : typeCode // ignore: cast_nullable_to_non_nullable
@@ -161,7 +161,7 @@ class _$AccountTypeImpl extends _AccountType {
       : super._();
 
   @override
-  final int? id;
+  final String? id;
   @override
   final String typeCode;
   @override
@@ -207,7 +207,7 @@ class _$AccountTypeImpl extends _AccountType {
 
 abstract class _AccountType extends AccountType {
   const factory _AccountType(
-      {final int? id,
+      {final String? id,
       required final String typeCode,
       required final String typeLabel,
       required final bool isSystem,
@@ -215,7 +215,7 @@ abstract class _AccountType extends AccountType {
   const _AccountType._() : super._();
 
   @override
-  int? get id;
+  String? get id;
   @override
   String get typeCode;
   @override

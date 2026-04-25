@@ -1,5 +1,5 @@
 name: stock_note
-description: Personal stock trading journal with Google Drive sync.
+description: Personal stock trading journal with Firebase sync.
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -17,25 +17,13 @@ dependencies:
   # --- Navigation ---
   go_router: ^14.2.0
 
-  # --- Database: SQLite ---
-  sqflite: ^2.3.3+1
-  sqflite_common_ffi: ^2.3.3
-  sqflite_common_ffi_web: ^1.1.1
-  path: ^1.9.0
-  path_provider: ^2.1.3
+  # --- Firebase ---
+  firebase_core: ^3.6.0
+  cloud_firestore: ^5.4.0
+  firebase_auth: ^5.3.0
 
-  # --- Google Auth & Drive ---
+  # --- Google Auth ---
   google_sign_in: ^6.2.1
-  googleapis: ^13.2.0
-  googleapis_auth: ^1.6.0
-  http: ^1.2.1
-  extension_google_sign_in_as_googleapis_auth: ^2.0.12
-
-  # --- Secure Storage ---
-  flutter_secure_storage: ^9.0.0
-
-  # --- Connectivity ---
-  connectivity_plus: ^6.0.3
 
   # --- Utilities ---
   intl: ^0.19.0
@@ -48,7 +36,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^4.0.0
 
-  # --- Code Generation (freezed only) ---
+  # --- Code Generation ---
   build_runner: ^2.4.11
   freezed: ^2.5.7
   json_serializable: ^6.8.0
@@ -58,5 +46,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/db/

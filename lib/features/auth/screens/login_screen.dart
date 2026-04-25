@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/auth_provider.dart';
-import '../widgets/google_sign_in_button.dart';
 import '../../../shared/widgets/loading_overlay.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -23,8 +21,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _error = null;
     });
     try {
-      final repo = ref.read(authRepositoryProvider);
-      await repo.signIn();
+      await ref.read(authRepositoryProvider).signIn();
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -80,23 +77,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                 ],
-                if (kIsWeb)
-                  SizedBox(
-                    height: 48,
-                    child: buildGoogleSignInButton(),
-                  )
-                else
-                  FilledButton.icon(
-                    onPressed: _isLoading ? null : _signIn,
-                    icon: const Icon(Icons.login),
-                    label: const Text('Google로 로그인'),
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 52),
-                    ),
+                FilledButton.icon(
+                  onPressed: _isLoading ? null : _signIn,
+                  icon: const Icon(Icons.login),
+                  label: const Text('Google로 로그인'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 52),
                   ),
+                ),
                 const SizedBox(height: 16),
                 Text(
-                  'Google Drive에 데이터를 안전하게 저장합니다.',
+                  'Firebase로 데이터를 안전하게 저장합니다.',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.outline,
                   ),

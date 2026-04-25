@@ -12,7 +12,7 @@ class TradeFilterNotifier extends StateNotifier<TradeFilter> {
 
   void setStartDate(DateTime? d) => state = state.copyWith(startDate: d);
   void setEndDate(DateTime? d) => state = state.copyWith(endDate: d);
-  void setAccount(int? id) => state = state.copyWith(accountId: id);
+  void setAccount(String? id) => state = state.copyWith(accountId: id);
   void setTickerQuery(String? q) => state = state.copyWith(tickerQuery: q);
   void reset() => state = const TradeFilter();
 }
