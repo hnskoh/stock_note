@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.stocknote.stock_note"
+    namespace = "com.hnskoh.stock_note"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.stocknote.stock_note"
+        applicationId = "com.hnskoh.stock_note"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 26  // Android 8.0 (SRS requirement)

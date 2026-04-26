@@ -1,4 +1,4 @@
-package com.stocknote.stock_note_tmp
+package com.hnskoh.stock_note
 
 import io.flutter.embedding.android.FlutterActivity
 

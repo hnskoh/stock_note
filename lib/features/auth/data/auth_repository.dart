@@ -8,7 +8,9 @@ import '../domain/user_model.dart';
 class AuthRepository {
   AuthRepository()
       : _auth = FirebaseAuth.instance,
-        _googleSignIn = GoogleSignIn();
+        _googleSignIn = GoogleSignIn(
+          serverClientId: '587400383504-lqfla4e46sfqfmtd8ou5gq3ti7o1c4t4.apps.googleusercontent.com',
+        );
 
   final FirebaseAuth _auth;
   final GoogleSignIn _googleSignIn;
